@@ -1,0 +1,129 @@
+---
+Course Code: Statisttical Technique 7MA505
+Student ID: '100635195'
+date: "2023-01-23"
+output:
+  pdf_document: default
+  word_document: default
+---
+
+# # # Please note every technique applied are basic library of R and no additional package or library is required
+
+# Statistical Techniques and Application
+Our first dataset is Lake Information. Importing the file to R
+
+```{r}
+lake = read.csv(file.choose())
+```
+
+Taking a quick look at the summary of our dataset 
+
+
+```{r}
+summary(lake)
+```
+Performing EDA on our dataset to give us a preview 
+```{r}
+hist(lake$geospatial_accuracy_km)
+```
+The above diagram shows 10% of our sample collected have high geospatial accuracy, we intend to investigate the causes of factors affecting the result. Therefore our dependent variable is geospatial_accuracy_km and other variable are identified as independent variable
+
+Fitting a linear model to our dataset using geospatial_accuracy_km as our dependent variable
+
+
+```{r}
+Lake_model = lm(geospatial_accuracy_km ~ elevation_m+mean_depth_m+max_depth_m+surface_area_km2+volume_km3, data = lake)
+```
+
+Checking if our dataset is normally distributed
+
+```{r}
+plot(Lake_model)
+```
+
+comment: our data is not normally distributed
+
+Showing summary of our linear model
+
+```{r}
+summary(Lake_model)
+```
+
+At 0.05 level of significance, the above result shows that elevation has significant effect on our dependent variable (geospatial_accuracy) having a low p-value while other variables does not really show significant effect. In order to back up our result, we therefore have to investigate cities with high elevation to check for their geospatial accuracy if it corresponds with our result
+
+
+# # Filtering out our needed variable (region, deviation and geospatial accuracy) 
+
+```{r}
+lake_needed = lake[c(6,10,9)]
+plot(lake_needed$geospatial_accuracy_km, lake_needed$elevation_m)
+```
+
+comment:Based on our dataset and hypothesis testing, we can assume that countries with high elevation where the lake or reservoir presides will probably have significant ecosystem effect if there ought to be a defiling agent to their reservoir and lakes . 
+
+
+# SECOND DATA SET 
+# N,P,K FACTORIAL EXPERIMENT DATASET
+Our dataset is an inbuilt R dataset
+
+```{r}
+data(npk)
+```
+
+Performing EDA on our dataset 
+```{r}
+boxplot(yield ~ block, data = npk, xlab = 'Blocks', ylab = 'Yield', 
+        main = 'Boxplot of Yield depending on Blocks')
+
+```
+
+
+comment:The boxplot diagram shows that block 3 have the highest yield with the minimun treatment used while block 4 have the lowest yield with maximun treatment while other blocks have similar yield and 
+treatments
+
+
+Fitting our dataset into ANOVA model
+```{r}
+model <- aov(yield ~N*P*K, data = npk)     
+anova(model)
+
+```
+
+Performing tukey test on our model
+```{r}
+tukey_test <- TukeyHSD(model)
+tukey_test
+
+```
+
+Visualizing tukey test
+```{r}
+plot(tukey_test, las = 1)
+```
+
+
+
+# Third dataset
+# MONTHLY AIRLINE PASSENGERS
+Our dataset is an inbuilt R dataset
+
+
+```{r}
+data("AirPassengers")
+```
+
+Performing EDA on our dataset
+
+```{r}
+plot(AirPassengers)
+```
+
+comment:After plotting our dataset. It appears our dataset contains trends and the trend to be identical. This tells us our data is not stationary which shows Air passangers increases as time goes on , we check for Ljung Test to see if the test statistics (X¬-squared) gets larger with time. We intend to check residual are independently distributed 
+
+Performing Ljung Box test on our data
+
+```{r}
+model = ARMAacf(AirPassengers)
+Box.test(model, lag = 12, type = 'Ljung-Box')
+```
+
